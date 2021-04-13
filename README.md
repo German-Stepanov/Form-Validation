@@ -1,6 +1,8 @@
 # Form-Validation
 Валидация формы на стороне клиента
 ```
+Используются любые асинхронные одиночные правила или группы правил проверки полей.
+После проверки отправляет форму или передает управление функции отправки формы (если указана)
 ```
 
 ## Пример страницы с формой
@@ -62,48 +64,51 @@
 ```
 ## Использование
 ```JS
-	//Создание экземпляра
-	var validation = new FormValidation ({
-		form		: $('form[name="my_form"]')[0],
-		onsubmit 	: function() {
-			console.log('send_form');
-			$('.form_success').show();
-		},
-	});
-	//Правила валидации
-	validation.rules = {
-		'user_name'			: validation.rule.no_empty,
-		'user_company[]'	: [
-			validation.rule.no_empty,
-			function(values, next) {
-				//console.log(values);
-				if (!values) return next();
-				if (values.indexOf('Company2')!=-1) return next('Вам запрещено выбирать Company2');
-				next();
-			},
-		],
-		'user_phone'	: function(value, next) {
-			var companies = $(this).find('input[name="user_company[]"]:checked');
-			for (var i=0; i<companies.length; i++) {
-				if ($(companies[i]).val()=='Company1' && value=='222-33-44') {
-					return next('Ошибка телефона');
-				}
-			}
+<script>
+//Создание экземпляра
+var validation = new FormValidation ({
+	form		: $('form[name="my_form"]')[0],
+	//При успехе
+	onsubmit 	: function() {
+		console.log('send_form');
+		$('.form_success').show();
+	},
+});
+//Правила валидации
+validation.rules = {
+	'user_name'			: validation.rule.no_empty,
+	'user_company[]'	: [
+		validation.rule.no_empty,
+		function(values, next) {
+			//console.log(values);
+			if (!values) return next();
+			if (values.indexOf('Company2')!=-1) return next('Вам запрещено выбирать Company2');
 			next();
 		},
-		'user_email' 	: validation.rule.no_empty,
-		'user_file[]' 	: [
-			validation.rule.no_empty,
-			function(values, next) {
-				//console.log(values);
-				if (!values) return next();
-				var errors = [];
-				for (var key in values) {
-					if (values[key] && values[key].size>400*1024) errors.push('Размер файла ' + values[key].name + ' превышает 400 кб');
-				}
-				next(errors.length==0 ? null : errors.join('<br>'));
+	],
+	'user_phone'	: function(value, next) {
+		var companies = $(this).find('input[name="user_company[]"]:checked');
+		for (var i=0; i<companies.length; i++) {
+			if ($(companies[i]).val()=='Company1' && value=='222-33-44') {
+				return next('Ошибка телефона');
 			}
-		],
-		'user_text' 	: validation.rule.no_empty,
-	};
+		}
+		next();
+	},
+	'user_email' 	: validation.rule.no_empty,
+	'user_file[]' 	: [
+		validation.rule.no_empty,
+		function(values, next) {
+			//console.log(values);
+			if (!values) return next();
+			var errors = [];
+			for (var key in values) {
+				if (values[key] && values[key].size>400*1024) errors.push('Размер файла ' + values[key].name + ' превышает 400 кб');
+			}
+			next(errors.length==0 ? null : errors.join('<br>'));
+		}
+	],
+	'user_text' 	: validation.rule.no_empty,
+};
+</script>
 ```
